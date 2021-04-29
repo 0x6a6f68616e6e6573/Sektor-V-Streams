@@ -26,5 +26,6 @@ jobs:
           key:  ${{ secrets.SSH_PRIVKEY_CE }}
           username: root
           script: |
+            pm2 stop all
             cd /opt/sektor_v_streams/ && npm install
             pm2 restart all
