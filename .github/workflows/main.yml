@@ -16,7 +16,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVKEY_CE }}
           REMOTE_HOST: sektorvstreams.choosen.cloud
           REMOTE_USER: root
-          ARGS: "-avzrl --exclude='.env' --exclude='.git' --exclude='.github' --delete"
+          ARGS: "-avzr --delete"
           SOURCE: "/"
           TARGET: "/opt/sektor_v_streams/"
       - name: SSH Remote Command
