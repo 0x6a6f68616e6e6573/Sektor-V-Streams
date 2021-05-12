@@ -1,0 +1,31 @@
+# This is a basic workflow to help you get started with Actions
+name: SSH Deploy
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: ssh deploy
+        uses: easingthemes/ssh-deploy@v2.1.5
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVKEY_CE }}
+          REMOTE_HOST: sektorvstreams.choosen.cloud
+          REMOTE_USER: root
+          ARGS: "-avzr --delete"
+          SOURCE: "/"
+          TARGET: "/opt/sektor_v_streams/"
+      - name: SSH Remote Command
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: sektorvstreams.choosen.cloud
+          key:  ${{ secrets.SSH_PRIVKEY_CE }}
+          username: root
+          script: |
+            pm2 stop all
+            cd /opt/sektor_v_streams/ && npm install
+            pm2 restart all
