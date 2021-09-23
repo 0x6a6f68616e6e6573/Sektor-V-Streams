@@ -13,7 +13,7 @@ export default {
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
   },
-
+  dev: process.env.NODE_ENV !== 'production',
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [],
 
@@ -46,7 +46,7 @@ export default {
   },
   proxy: {
     '/api/': {
-      target: 'https://sektorv.stream/api/graphql',
+      target: process.env.NODE_ENV == 'production' ?'https://sektorv.stream/api/graphql':'http://localhost:1337/graphql',
       pathRewrite: { '^/api/': '' },
       changeOrigin: true,
     },

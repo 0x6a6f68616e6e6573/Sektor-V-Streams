@@ -30,8 +30,7 @@
                     autocomplete="off"
                     class="
                       mt-1
-                      focus:ring-green-500
-                      focus:border-green-500
+                      focus:ring-green-500 focus:border-green-500
                       block
                       w-full
                       shadow-sm
@@ -56,8 +55,7 @@
                     required
                     class="
                       mt-1
-                      focus:ring-green-500
-                      focus:border-green-500
+                      focus:ring-green-500 focus:border-green-500
                       block
                       w-full
                       shadow-sm
@@ -81,8 +79,7 @@
                     autocomplete="off"
                     class="
                       mt-1
-                      focus:ring-green-500
-                      focus:border-green-500
+                      focus:ring-green-500 focus:border-green-500
                       block
                       w-full
                       shadow-sm
@@ -142,8 +139,7 @@
                     required
                     class="
                       mt-1
-                      focus:ring-green-500
-                      focus:border-green-500
+                      focus:ring-green-500 focus:border-green-500
                       block
                       w-full
                       shadow-sm
@@ -173,7 +169,9 @@
                   bg-green-600
                   hover:bg-green-700
                   focus:outline-none
-                  focus:ring-2 focus:ring-offset-2 focus:ring-green-500
+                  focus:ring-2
+                  focus:ring-offset-2
+                  focus:ring-green-500
                 "
               >
                 Save
@@ -181,6 +179,107 @@
             </div>
           </div>
         </form>
+      </div>
+    </div>
+    <div class="md:grid md:grid-cols-2 md:gap-6">
+      <div class="mt-5 md:mt-0 md:col-span-2">
+        <div class="overflow-auto lg:overflow-visible">
+          <table class="table text-gray-400 border-separate space-y-6 text-sm m-auto text-center">
+            <thead class="bg-dark-200 text-light-500">
+              <tr>
+                <th class="p-3 text-left">First Name</th>
+                <th class="p-3 text-left">Last Name</th>
+                <th class="p-3 text-left">Alias</th>
+                <th class="p-3 text-left">Organisation</th>
+                <th class="p-3 text-left">Twitch Username</th>
+                <!-- <th class="p-3 text-left">Actions</th> -->
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(player, index) in players"
+                :key="index"
+                class="bg-dark-200"
+              >
+                <!-- <td class="p-3 text-left">
+                <button
+                  @click="editPlayer(player)"
+                  class="
+                    inline-flex
+                    justify-center
+                    py-2
+                    px-4
+                    border border-transparent
+                    shadow-sm
+                    text-sm
+                    font-medium
+                    rounded-md
+                    text-white
+                    bg-green-600
+                    hover:bg-green-700
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-offset-2
+                    focus:ring-green-500
+                  "
+                >
+                  Edit
+                </button>
+                <button
+                  @click="deletePlayer(player)"
+                  class="
+                    inline-flex
+                    justify-center
+                    py-2
+                    px-4
+                    border border-transparent
+                    shadow-sm
+                    text-sm
+                    font-medium
+                    rounded-md
+                    text-white
+                    bg-red-600
+                    hover:bg-red-700
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-offset-2
+                    focus:ring-red-500
+                  "
+                >
+                  Delete
+                </button>
+              </td> -->
+                <td class="p-3 font-bold">
+                  <div class="flex align-items-center">
+                    <div class="ml-3">
+                      <div class="">{{ player.firstName }}</div>
+                      <!-- <div class="text-gray-500">mail@rgmail.com</div> -->
+                    </div>
+                  </div>
+                </td>
+                <td class="p-3 font-bold">{{ player.lastName }}</td>
+                <td class="p-3 font-bold">{{ player.alias }}</td>
+                <td class="p-3 font-bold">
+                  {{ player.organisation }}
+                </td>
+                <td class="p-3 font-bold">
+                  {{ player.twitchStreamer }}
+                </td>
+                <!-- <td class="p-3">
+                <a href="#" class="text-gray-400 hover:text-gray-100 mr-2">
+                  <i class="material-icons-outlined text-base">visibility</i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-gray-100 mx-2">
+                  <i class="material-icons-outlined text-base">edit</i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-gray-100 ml-2">
+                  <i class="material-icons-round text-base">delete_outline</i>
+                </a>
+              </td> -->
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -201,10 +300,12 @@ export default Vue.extend({
         organisation: '',
       },
       organisations: [],
+      players: [],
     };
   },
   async mounted() {
     await this.fetchOrganisations();
+    await this.fetchPlayers();
   },
   methods: {
     async submit() {
@@ -276,6 +377,47 @@ export default Vue.extend({
         )
       ).data.data.getAllOrganisations;
     },
+    async fetchPlayers() {
+      this.players = await (
+        await this.$axios.get(
+          `/api/?query=` +
+            `query {
+        getAllCharcters {
+          firstName
+          lastName
+          alias
+          organisation
+          twitchStreamer
+        }
+      }`
+        )
+      ).data.data.getAllCharcters;
+    },
   },
 });
 </script>
+
+<style>
+.table {
+  border-spacing: 0 15px;
+  color: rgb(223, 223, 223);
+}
+
+i {
+  font-size: 1rem !important;
+}
+
+.table tr {
+  border-radius: 20px;
+}
+
+tr td:nth-child(n + 5),
+tr th:nth-child(n + 5) {
+  border-radius: 0 0.625rem 0.625rem 0;
+}
+
+tr td:nth-child(1),
+tr th:nth-child(1) {
+  border-radius: 0.625rem 0 0 0.625rem;
+}
+</style>
