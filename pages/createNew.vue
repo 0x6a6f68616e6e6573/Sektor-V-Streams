@@ -213,7 +213,7 @@ export default Vue.extend({
         return;
       }
       // axios graphql query for mutation to find a user by username
-      let response = await this.$axios.post('http://localhost:1337/graphql', {
+      let response = await this.$axios.post('/api/', {
         query: `mutation getStreamer($displayName: String!) {
           getStreamer(input: {displayName:$displayName}) {
             displayName
@@ -228,7 +228,7 @@ export default Vue.extend({
       // if user exists, update the user
       if (!response.data.data) {
         // create new streamer
-        response = await this.$axios.post('http://localhost:1337/graphql', {
+        response = await this.$axios.post('/api/', {
           query: `mutation createTwitchStreamer($displayName: String!) {
             createTwitchStreamer(input: {displayName:$displayName}) {
               displayName
@@ -241,7 +241,7 @@ export default Vue.extend({
         console.log(response);
       }
 
-      response = await this.$axios.post('http://localhost:1337/graphql', {
+      response = await this.$axios.post('/api/', {
         query: `mutation createRoleplayCharacter($firstName: String!, $lastName: String!, $alias: String!, $organisation: String!, $twitchStreamer: String!) {
           createRoleplayCharacter(input: {firstName:$firstName, lastName:$lastName, alias:$alias, organisation:$organisation, twitchStreamer:$twitchStreamer}) {
             _id
@@ -264,7 +264,7 @@ export default Vue.extend({
     async fetchOrganisations() {
       this.organisations = await (
         await this.$axios.get(
-          `http://localhost:1337/graphql?query=` +
+          `/api/?query=` +
             `
             query {
               getAllOrganisations {

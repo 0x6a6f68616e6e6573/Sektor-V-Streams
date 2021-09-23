@@ -189,7 +189,7 @@ export default Vue.extend({
       if (person !== 'mousy-ignition-halogen') {
         return;
       }
-      let response = await this.$axios.post('http://localhost:1337/graphql', {
+      let response = await this.$axios.post('/api/', {
         query: `mutation createOrganisation($name: String!, $color: String!, $description: String!) {
           createOrganisation(input: {name: $name, color: $color, description: $description}) {
             name
@@ -202,7 +202,7 @@ export default Vue.extend({
     async fetch() {
       await (
         await this.$axios.get(
-          `http://localhost:1337/graphql?query=` +
+          `/api/?query=` +
             `
             query {
               getAllOrganisations {

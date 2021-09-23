@@ -347,7 +347,7 @@ export default Vue.extend({
       await this.fetchOrganisations();
       this.streamers = await (
         await this.$axios.get(
-          `http://localhost:1337/graphql?query=` +
+          `/api/?query=` +
             `
             query {
               getAllStreamers {
@@ -371,7 +371,7 @@ export default Vue.extend({
 
       const response = await (
         await this.$axios.get(
-          `http://localhost:1337/graphql?query=` +
+          `/api/?query=` +
             `
             query {
               getAllCharcters {
@@ -406,7 +406,7 @@ export default Vue.extend({
       this.$store.commit('START_LOADING');
       this.streamers = await (
         await this.$axios.get(
-          `http://localhost:1337/graphql?query=` +
+          `/api/graphql?query=` +
             `
           query {
             getAllStreamers {
@@ -447,7 +447,7 @@ export default Vue.extend({
     async fetchOrganisations() {
       const organisations = await (
         await this.$axios.get(
-          `http://localhost:1337/graphql?query=` +
+          `/api/graphql?query=` +
             `
             query {
               getAllOrganisations {

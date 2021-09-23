@@ -39,15 +39,16 @@ export default {
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    baseURL: 'http://localhost:3000',
+    // baseURL: 'http://localhost:3000',
     proxy: true,
-    proxyHeaders: false,
-    credentials: false,
+    // proxyHeaders: false,
+    // credentials: false,
   },
   proxy: {
-    '/api': {
-      target: 'http://localhost:3000/',
-      pathRewrite: { '^/api': '' },
+    '/api/': {
+      target: 'https://sektorv.stream/api/graphql',
+      pathRewrite: { '^/api/': '' },
+      changeOrigin: true,
     },
   },
 
