@@ -49,7 +49,8 @@
                 encodeURI(
                   streamer.status === 'offline'
                     ? streamer.banner
-                    : `https://static-cdn.jtvnw.net/previews-ttv/live_user_${streamer.displayName.toLowerCase()}-640x360.jpg`
+                    : `https://static-cdn.jtvnw.net/previews-ttv/live_user_${streamer.displayName.toLowerCase()}-640x360.jpg?` +
+                        new Date().getTime()
                 ) +
                 ')',
             }"
@@ -334,7 +335,7 @@ export default Vue.extend({
   watch: {
     '$store.state.filter': {
       handler(nv) {
-        this.filterStreamers(nv);
+        this.filterStreamers(this.streamers, nv);
       },
       immediate: true, // provides initial (not changed yet) state
     },
@@ -343,12 +344,61 @@ export default Vue.extend({
     this.$store.commit('START_LOADING');
   },
   async mounted() {
-    try {
-      await this.fetchOrganisations();
-      this.streamers = await (
+    await this.fetchData();
+
+    this.$store.commit('STOP_LOADING');
+
+    setInterval(async () => {
+      // this.$store.commit('START_LOADING');
+      await this.fetchData();
+      // this.$store.commit('STOP_LOADING');
+    }, 2.5 * 60 * 1000);
+  },
+  methods: {
+    filterStreamers(streamers: any[], nv: string) {
+      if (nv === 'viewers') {
+        streamers.sort((a, b) =>
+          a.views < b.views ? 1 : b.views < a.views ? -1 : 0
+        );
+      } else if (nv === 'organistation') {
+        streamers.sort((a, b) =>
+          a.views < b.views ? 1 : b.views < a.views ? -1 : 0
+        );
+      }
+      this.streamers = streamers;
+    },
+    async fetchOrganisations() {
+      const organisations = await (
         await this.$axios.get(
-          `/api/?query=` +
+          `/api/graphql?query=` +
             `
+            query {
+              getAllOrganisations {
+                name
+                color
+                description
+              }
+            }`
+        )
+      ).data.data.getAllOrganisations;
+
+      if (organisations.length > 0) {
+        this.organisations = organisations.reduce(
+          (obj: any, item: any) =>
+            Object.assign(obj, {
+              [item.name]: { color: item.color, name: item.name },
+            }),
+          {}
+        );
+      }
+    },
+    async fetchData() {
+      try {
+        await this.fetchOrganisations();
+        const streamers = await (
+          await this.$axios.get(
+            `/api/?query=` +
+              `
             query {
               getAllStreamers {
                 displayName
@@ -366,13 +416,13 @@ export default Vue.extend({
                 views
               }
             }`
-        )
-      ).data.data.getAllStreamers;
+          )
+        ).data.data.getAllStreamers;
 
-      const response = await (
-        await this.$axios.get(
-          `/api/?query=` +
-            `
+        const response = await (
+          await this.$axios.get(
+            `/api/?query=` +
+              `
             query {
               getAllCharcters {
                 firstName
@@ -382,90 +432,22 @@ export default Vue.extend({
                 twitchStreamer
               }
             }`
-        )
-      ).data.data.getAllCharcters;
+          )
+        ).data.data.getAllCharcters;
 
-      for (let index = 0; index < response.length; index++) {
-        const character = response[index];
-        const pos = this.streamers.findIndex(
-          (streamer) =>
-            streamer.displayName.toLowerCase() ===
-            character.twitchStreamer.toLowerCase()
-        );
-        this.streamers[pos].characters = [];
-        this.streamers[pos].characters.push(character);
-      }
-      this.filterStreamers(this.$store.state.filter);
-    } catch (e) {
-      this.streamers = [];
-    }
-
-    this.$store.commit('STOP_LOADING');
-
-    setInterval(async () => {
-      this.$store.commit('START_LOADING');
-      this.streamers = await (
-        await this.$axios.get(
-          `/api/graphql?query=` +
-            `
-          query {
-            getAllStreamers {
-              displayName
-              twitch_id
-              description
-              logo
-              stillExists
-              banner
-              preview
-              status
-              game
-              followers
-              createdAt
-              lastUpdated
-              views
-            }
-          }`
-        )
-      ).data.data.getAllStreamers;
-      this.filterStreamers(this.$store.state.filter);
-      await this.fetchOrganisations();
-      this.$store.commit('STOP_LOADING');
-    }, 2.5 * 60 * 1000);
-  },
-  methods: {
-    filterStreamers(nv: string) {
-      if (nv === 'viewers') {
-        this.streamers.sort((a, b) =>
-          a.views < b.views ? 1 : b.views < a.views ? -1 : 0
-        );
-      } else if (nv === 'organistation') {
-        this.streamers.sort((a, b) =>
-          a.views < b.views ? 1 : b.views < a.views ? -1 : 0
-        );
-      }
-    },
-    async fetchOrganisations() {
-      const organisations = await (
-        await this.$axios.get(
-          `/api/graphql?query=` +
-            `
-            query {
-              getAllOrganisations {
-                name
-                color
-                description
-              }
-            }`
-        )
-      ).data.data.getAllOrganisations;
-      if (organisations.length > 0) {
-        this.organisations = organisations.reduce(
-          (obj: any, item: any) =>
-            Object.assign(obj, {
-              [item.name]: { color: item.color, name: item.name },
-            }),
-          {}
-        );
+        for (let index = 0; index < response.length; index++) {
+          const character = response[index];
+          const pos = streamers.findIndex(
+            (streamer: any) =>
+              streamer.displayName.toLowerCase() ===
+              character.twitchStreamer.toLowerCase()
+          );
+          streamers[pos].characters = [];
+          streamers[pos].characters.push(character);
+        }
+        this.filterStreamers(streamers, this.$store.state.filter);
+      } catch (e) {
+        this.streamers = [];
       }
     },
   },

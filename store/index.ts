@@ -26,6 +26,7 @@ export const state = () => ({
   isDisplayOffline: true,
   filteredOrgas: [],
   filter: 'viewers',
+  myList: [],
 });
 
 export const mutations = {
