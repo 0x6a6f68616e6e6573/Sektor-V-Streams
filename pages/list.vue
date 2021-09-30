@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-2 w-full select-none">
+  <div class="mx-2 w-full select-none" :class="{ selector: !loggedIn }">
     <span
       class="
         hidden
@@ -43,6 +43,7 @@
       >
         <div v-if="group !== 'updated'" class="mb-5 w-full flex justify-center">
           <button
+            v-if="loggedIn"
             @click="
               group == 'group4'
                 ? openModal('characterSettings')
@@ -82,6 +83,7 @@
             {{ key }}
             <div class="absolute top-1 left-1">
               <button
+                v-if="loggedIn"
                 @click="sortByChar(group, key)"
                 class="
                   text-white text-center
@@ -107,6 +109,7 @@
             </div>
             <div class="absolute top-1 right-1">
               <button
+                v-if="loggedIn"
                 @click="sortByStreamer(group, key)"
                 class="
                   text-white text-center
@@ -169,6 +172,7 @@
                 >
                 <div class="absolute top-1 -right-1">
                   <button
+                    v-if="loggedIn"
                     @click="openModal('characterSettings', false, char)"
                     class="
                       text-white text-cente
@@ -243,10 +247,14 @@ export default Vue.extend({
         characterSettings: { component: CharacterSettingsModal },
         organisationSettings: { component: OrganisationSettingsModal },
       } as any,
+      loggedIn: false,
     };
   },
   async mounted() {
     await this.fetchData();
+    if (localStorage.password === 'mousy-ignition-halogen') {
+      this.loggedIn = true;
+    }
   },
   methods: {
     onMove({ relatedContext, draggedContext }: any) {
@@ -400,3 +408,18 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style>
+.selector {
+  pointer-events: none;
+  /* For Opera and <= IE9, we need to add unselectable="on" attribute onto each element */
+  /* Check this site for more details: http://help.dottoro.com/lhwdpnva.php */
+  -moz-user-select: none; /* These user-select properties are inheritable, used to prevent text selection */
+  -webkit-user-select: none;
+  -ms-user-select: none; /* From IE10 only */
+  user-select: none; /* Not valid CSS yet, as of July 2012 */
+
+  -webkit-user-drag: none; /* Prevents dragging of images/divs etc */
+  user-drag: none;
+}
+</style>
