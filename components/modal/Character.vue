@@ -171,7 +171,7 @@
                   </div>
                 </div>
               </div>
-              <div class="px-4 py-3 bg-dark-800 text-right sm:px-6">
+              <div class="px-4 py-3 bg-dark-900 text-right sm:px-6">
                 <button
                   type="button"
                   class="
@@ -196,6 +196,7 @@
                   Cancel
                 </button>
                 <button
+                  @click="submit"
                   type="submit"
                   class="
                     inline-flex
@@ -280,7 +281,8 @@ export default Vue.extend({
             _id: this.form._id,
           },
         });
-
+        
+        this.$emit('closeModal');
         return;
       }
       // axios graphql query for mutation to find a user by username

@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-2 w-full select-none" :class="{ selector: !loggedIn }">
+  <div class="mx-2 w-full select-none text-sm" :class="{ selector: !loggedIn }">
     <span
       class="
         hidden
@@ -41,6 +41,7 @@
         :key="'#' + index"
         class="flex flex-col h-full"
       >
+        <!-- :class="{ hidden: group == 'updated' }" -->
         <div v-if="group !== 'updated'" class="mb-5 w-full flex justify-center">
           <button
             v-if="loggedIn"
@@ -81,7 +82,7 @@
             :class="`bg-${groups[group][key].color || 'gray'}-500`"
           >
             {{ key }}
-            <div class="absolute top-1 left-1">
+            <!-- <div class="absolute top-1 left-1">
               <button
                 v-if="loggedIn"
                 @click="sortByChar(group, key)"
@@ -132,6 +133,49 @@
               >
                 &#128472;
               </button>
+            </div> -->
+          </div>
+          <div
+            v-if="loggedIn"
+            class="
+              relative
+              grid grid-cols-3
+              text-center
+              align-middle
+              items-center
+              text-3xl
+              p-0
+            "
+          >
+            <div class="relative h-4 col-span-2">
+              <div
+                @click="sortByChar(group, key)"
+                :class="{
+                  'transform -translate-y-3/4':
+                    groups[group][key].sortBy != 'firstname',
+                }"
+              >
+                {{
+                  groups[group][key].sortBy == 'firstname'
+                    ? '&#129171;'
+                    : '&#129169;'
+                }}
+              </div>
+            </div>
+            <div class="h-4">
+              <div
+                @click="sortByStreamer(group, key)"
+                :class="{
+                  'transform -translate-y-3/4':
+                    groups[group][key].sortBy != 'streamer',
+                }"
+              >
+                {{
+                  groups[group][key].sortBy == 'streamer'
+                    ? '&#129171;'
+                    : '&#129169;'
+                }}
+              </div>
             </div>
           </div>
           <draggable
@@ -167,7 +211,12 @@
                 <a
                   :href="`https://www.twitch.tv/${char.twitchStreamer}`"
                   target="_blank"
-                  class="mr-6 text-center text-purple-500 font-semibold text-lg"
+                  class="
+                    mr-6
+                    text-center text-purple-500
+                    font-semibold
+                    text-base
+                  "
                   >{{ char.twitchStreamer }}</a
                 >
                 <div class="absolute top-1 -right-1">
@@ -198,6 +247,13 @@
             </transition-group>
           </draggable>
         </div>
+      </div>
+      <div v-if="groups.group4['Zivilist']" class="m-5 col-span-2">
+        <img
+          class="object-contain w-full"
+          src="https://lh4.googleusercontent.com/yh81eThrHKR1j28iCpf-tLSUldDdCZFuX_hM-86A_25wHpxhYRiCbE15-buBIUUqvfgjzsBj3ys68u22--1qG1BA_xe4zjzoxUkqvBGSjhoEH4uTSkO6jmGhPfBfx3Nl6y3_f1g9eQ=w1762-h349"
+          alt=""
+        />
       </div>
     </div>
   </div>
@@ -266,6 +322,7 @@ export default Vue.extend({
       );
     },
     sortByChar(group: string, key: string) {
+      this.groups[group][key].sortBy = 'firstname';
       this.groups[group][key].characters.sort((a: any, b: any) => {
         if (a.firstName < b.firstName) {
           return -1;
@@ -277,6 +334,7 @@ export default Vue.extend({
       this.save();
     },
     sortByStreamer(group: string, key: string) {
+      this.groups[group][key].sortBy = 'streamer';
       this.groups[group][key].characters.sort((a: any, b: any) => {
         if (a.twitchStreamer.toLowerCase() < b.twitchStreamer.toLowerCase()) {
           return -1;
@@ -307,7 +365,7 @@ export default Vue.extend({
 
       for (let i = 0; i < organisations.length; i++) {
         this.groups[organisations[i].group || 'group1'][organisations[i].name] =
-          { ...organisations[i], characters: [] };
+          { ...organisations[i], characters: [], sortBy: '' };
       }
       this.organisations = organisations;
     },
