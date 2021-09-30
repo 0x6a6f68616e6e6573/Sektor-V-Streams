@@ -1,175 +1,394 @@
 <template>
-  <div class="p-3 grid grid-rows-3 grid-cols-4 grid-flow-row gap-4 select-none">
-    <div
-      v-for="(_, index) in organisations.length - 1"
-      :key="_.name"
-      class="bg-dark-300 rounded-t"
-    >
-      <div
-        class="
-          p-1.5
-          bg-green-300
-          text-dark-700 text-center
-          font-semibold
-          rounded-t
-        "
-      >
-        {{ organisations[index + 1] }}
-      </div>
-      <draggable
-        class="list-group h-full"
-        tag="ul"
-        v-model="lists[index + 1]"
-        v-bind="dragOptions"
-        :move="onMove"
-      >
-        <transition-group name="no" class="list-group h-full" tag="ul">
-          <li
-            class="m-1 p-1 rounded bg-dark-500 cursor-pointer"
-            v-for="element in lists[index + 1]"
-            :key="element.order"
-          >
-            {{ element.char.name }}
-            <span class="badge">{{ element.order }}</span>
-          </li>
-        </transition-group>
-      </draggable>
-    </div>
-
-    <div class="grid grid-rows-3 grid-flow-col gap-4">
-      <div class="bg-dark-300 row-span-3 rounded-t">
-        <div
-          class="
-            p-1.5
-            bg-green-300
-            text-dark-700 text-center
-            font-semibold
-            rounded-t
-          "
-        >
-          {{ organisations[0] }}
-        </div>
-        <button
-          class="
-            relative
-            left-1/2
-            transform
-            -translate-x-1/2
-            m-1
-            p-1
-            px-5
-            rounded
-            bg-green-800
-            transition-colors
-            hover:bg-green-900
-          "
-        >
-          Create New
-        </button>
-        <draggable
-          class="list-group h-full"
-          tag="ul"
-          v-model="lists[0]"
-          v-bind="dragOptions"
-          :move="onMove"
-        >
-          <transition-group name="no" class="list-group h-full" tag="ul">
-            <li
-              class="m-1 p-1 rounded bg-dark-500 cursor-pointer"
-              v-for="element in lists[0]"
-              :key="element.order"
-            >
-              {{ element.char.name }}
-              <span class="badge">{{ element.order }}</span>
-            </li>
-          </transition-group>
-        </draggable>
-      </div>
-    </div>
-    <div
+  <div class="mx-2 w-full select-none">
+    <span
       class="
-        bg-dark-300
-        rounded
-        font-bold
-        text-10xl
-        h-full
-        align-middle
-        text-center
-        items-center
-        leading-relaxed
-        cursor-pointer
-        transition-colors
-        hover:bg-dark-400
+        hidden
+        bg-light-500
+        bg-dark-500
+        bg-gray-500
+        bg-red-500
+        bg-yellow-500
+        bg-green-500
+        bg-blue-500
+        bg-indigo-500
+        bg-purple-500
+        bg-pink-500
+        bg-rose-500
+        bg-fuchsia-500
+        bg-violet-500
+        bg-cyan-500
+        bg-teal-500
+        bg-emerald-500
+        bg-lime-500
+        bg-amber-500
+        bg-orange-500
+        bg-light-blue-500
+        bg-warm-gray-500
+        bg-true-gray-500
+        bg-cool-gray-500
+        bg-blue-gray-500
       "
-    >
-      +
+    ></span>
+    <component
+      :is="currentModal"
+      @closeModal="closeModal"
+      :group="group"
+      :character="character"
+    />
+    <div class="h-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
+      <div
+        v-for="(group, index) in Object.keys(groups)"
+        :key="'#' + index"
+        class="flex flex-col h-full"
+      >
+        <div v-if="group !== 'updated'" class="mb-5 w-full flex justify-center">
+          <button
+            @click="
+              group == 'group4'
+                ? openModal('characterSettings')
+                : openModal('organisationSettings', group)
+            "
+            class="
+              bg-green-500
+              hover:bg-green-600
+              text-white text-center
+              outline-none
+              focus:outline-none
+              transition-colors
+              duration-200
+              py-1
+              pb-2
+              px-3
+              rounded
+              font-bold
+              text-2xl
+              align-middle
+              items-center
+              leading-none
+            "
+          >
+            &#43;
+          </button>
+        </div>
+        <div
+          v-for="(key, jndex) in Object.keys(groups[group])"
+          :key="'##' + jndex"
+          class="relative mb-5 rounded-lg overflow-hidden"
+        >
+          <div
+            class="relative p-2 text-center font-semibold"
+            :class="`bg-${groups[group][key].color || 'gray'}-500`"
+          >
+            {{ key }}
+            <div class="absolute top-1 left-1">
+              <button
+                @click="sortByChar(group, key)"
+                class="
+                  text-white text-center
+                  transform
+                  rotate-135
+                  outline-none
+                  focus:outline-none
+                  transition-colors
+                  duration-200
+                  py-0
+                  pb-1
+                  px-1.5
+                  rounded
+                  text-2xl
+                  align-middle
+                  items-center
+                  leading-none
+                  hover:animate-spin
+                "
+              >
+                &#128472;
+              </button>
+            </div>
+            <div class="absolute top-1 right-1">
+              <button
+                @click="sortByStreamer(group, key)"
+                class="
+                  text-white text-center
+                  transform
+                  rotate-45
+                  outline-none
+                  focus:outline-none
+                  transition-colors
+                  duration-200
+                  py-0
+                  pb-1
+                  px-1.5
+                  rounded
+                  text-2xl
+                  align-middle
+                  items-center
+                  leading-none
+                  hover:animate-spin
+                "
+              >
+                &#128472;
+              </button>
+            </div>
+          </div>
+          <draggable
+            class="h-full"
+            tag="div"
+            v-model="groups[group][key].characters"
+            v-bind="dragOptions"
+            :move="onMove"
+            @change="updatedGroups"
+          >
+            <transition-group tag="div" class="min-h-24">
+              <div
+                class="relative grid grid-cols-3 align-middle items-center"
+                :class="{
+                  'bg-light-50 bg-opacity-3': kndex % 2 == index % 2,
+                  'bg-light-50 bg-opacity-6': kndex % 2 != index % 2,
+                }"
+                v-for="(char, kndex) in groups[group][key].characters"
+                :key="`${index}#${kndex}`"
+              >
+                <div
+                  class="
+                    ml-1
+                    py-1
+                    col-span-2
+                    text-center
+                    whitespace-nowrap
+                    overflow-hidden overflow-ellipsis
+                  "
+                >
+                  {{ char.firstName + ' ' + char.lastName }}
+                </div>
+                <a
+                  :href="`https://www.twitch.tv/${char.twitchStreamer}`"
+                  target="_blank"
+                  class="mr-6 text-center text-purple-500 font-semibold text-lg"
+                  >{{ char.twitchStreamer }}</a
+                >
+                <div class="absolute top-1 -right-1">
+                  <button
+                    @click="openModal('characterSettings', false, char)"
+                    class="
+                      text-white text-cente
+                      outline-none
+                      focus:outline-none
+                      transition-colors
+                      duration-200
+                      py-0
+                      pb-1
+                      px-1.5
+                      rounded
+                      text-xl
+                      align-middle
+                      items-center
+                      leading-none
+                      hover:animate-pulse
+                    "
+                  >
+                    &#128393;
+                  </button>
+                </div>
+              </div>
+            </transition-group>
+          </draggable>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue';
 import draggable from 'vuedraggable';
 
-const message = [
-  { name: 'John Doe' },
-  { name: 'John Doe' },
-  { name: 'John Doe' },
-  { name: 'John Doe' },
-  { name: 'John Doe' },
-  { name: 'John Doe' },
-  { name: 'John Doe' },
-];
-export default {
-  name: 'hello',
+import CharacterSettingsModal from '@/components/modal/Character.vue';
+import OrganisationSettingsModal from '@/components/modal/Organisation.vue';
+
+export default Vue.extend({
+  name: 'List',
   layout: 'list',
   components: {
     draggable,
-  },
-  data() {
-    return {
-      organisations: ['Zivilist', 'Polizei', 'Mediziner', 'Taxi', 'Autohaus'],
-      lists: [
-        message.map((char, index) => {
-          return { char, order: index + 1, fixed: false };
-        }),
-      ],
-
-      editable: true,
-      isDragging: false,
-      delayedDragging: false,
-    };
-  },
-  created() {
-    for (let i = 0; i < this.organisations.length; i++) {
-      this.lists.push([]);
-    }
-  },
-  methods: {
-    orderList() {
-      this.list = this.list.sort((one, two) => {
-        return one.order - two.order;
-      });
-    },
-    onMove({ relatedContext, draggedContext }) {
-      const relatedElement = relatedContext.element;
-      const draggedElement = draggedContext.element;
-      return (
-        (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
-      );
-    },
   },
   computed: {
     dragOptions() {
       return {
         animation: 0,
         group: 'description',
-        disabled: !this.editable,
+        disabled: false,
         ghostClass: 'ghost',
       };
     },
   },
+  data() {
+    return {
+      groups: {
+        group1: {},
+        group2: {},
+        group3: {},
+        group4: {},
+        updated: Date.now(),
+      } as any,
+      editable: true,
+      isDragging: false,
+      delayedDragging: false,
+      organisations: [] as any,
+      characters: [] as any,
+      group: '',
+      character: null,
+      currentModal: '',
+      modals: {
+        characterSettings: { component: CharacterSettingsModal },
+        organisationSettings: { component: OrganisationSettingsModal },
+      } as any,
+    };
+  },
+  async mounted() {
+    await this.fetchData();
+  },
+  methods: {
+    onMove({ relatedContext, draggedContext }: any) {
+      const relatedElement = relatedContext.element;
+      const draggedElement = draggedContext.element;
+      this.groups.updated = Date.now();
+      return (
+        (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
+      );
+    },
+    sortByChar(group: string, key: string) {
+      this.groups[group][key].characters.sort((a: any, b: any) => {
+        if (a.firstName < b.firstName) {
+          return -1;
+        } else if (a.firstName > b.firstName) {
+          return 1;
+        } else return 0;
+      });
+      this.groups.updated = Date.now();
+      this.save();
+    },
+    sortByStreamer(group: string, key: string) {
+      this.groups[group][key].characters.sort((a: any, b: any) => {
+        if (a.twitchStreamer.toLowerCase() < b.twitchStreamer.toLowerCase()) {
+          return -1;
+        } else if (
+          a.twitchStreamer.toLowerCase() > b.twitchStreamer.toLowerCase()
+        ) {
+          return 1;
+        } else return 0;
+      });
+      this.groups.updated = Date.now();
+      this.save();
+    },
+    async fetchOrganisations() {
+      const organisations = await (
+        await this.$axios.get(
+          `/api/graphql?query=` +
+            `
+            query {
+              getAllOrganisations {
+                name
+                color
+                description
+                group
+              }
+            }`
+        )
+      ).data.data.getAllOrganisations;
+
+      for (let i = 0; i < organisations.length; i++) {
+        this.groups[organisations[i].group || 'group1'][organisations[i].name] =
+          { ...organisations[i], characters: [] };
+      }
+      this.organisations = organisations;
+    },
+    async fetchData() {
+      try {
+        await this.fetchOrganisations();
+
+        const characters = await (
+          await this.$axios.get(
+            `/api/?query=` +
+              `
+            query {
+              getAllCharcters {
+                _id
+                firstName
+                lastName
+                alias
+                organisation
+                twitchStreamer
+                order
+              }
+            }`
+          )
+        ).data.data.getAllCharcters;
+
+        for (let i = 0; i < characters.length; i++) {
+          const pos = this.organisations.findIndex(
+            (item: any) => item.name == characters[i].organisation
+          );
+          this.groups[this.organisations[pos].group || 'group1'][
+            this.organisations[pos].name
+          ].characters.push(characters[i]);
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        for (const group in this.groups) {
+          for (const key in this.groups[group]) {
+            this.groups[group][key].characters.sort((a: any, b: any) => {
+              if (a.order < b.order) {
+                return -1;
+              } else if (a.order > b.order) {
+                return 1;
+              } else return 0;
+            });
+          }
+        }
+        this.groups.updated = Date.now();
+      }
+    },
+    async save() {
+      for (const group in this.groups) {
+        for (const key in this.groups[group]) {
+          for (let i = 0; i < this.groups[group][key].characters.length; i++) {
+            const char = this.groups[group][key].characters[i];
+            if (char.order == i && char.organisation == key) continue;
+            char.order = i;
+            char.organisation = key;
+            this.$axios.post('/api/', {
+              query: `mutation updateRoleplayCharacter($_id:ID!,$firstName: String!, $lastName: String!, $alias: String!, $organisation: String!, $twitchStreamer: String! $order: Int!) {
+                  updateRoleplayCharacter(input: {_id:$_id, firstName:$firstName, lastName:$lastName, alias:$alias, organisation:$organisation, twitchStreamer:$twitchStreamer, order:$order}) {
+                  _id
+                  twitchStreamer
+                  }
+                }`,
+              variables: char,
+            });
+          }
+        }
+      }
+    },
+    openModal(modal: string, group?: string, character?: any) {
+      if (group) this.group = group;
+      if (character) this.character = character;
+      this.currentModal = this.modals[modal].component;
+    },
+    closeModal() {
+      this.currentModal = '';
+      this.group = '';
+      this.character = null;
+      this.fetchData();
+    },
+    updatedGroups() {
+      this.groups.updated = Date.now();
+      this.save();
+    },
+  },
   watch: {
-    isDragging(newValue) {
+    isDragging(newValue: any) {
       if (newValue) {
         this.delayedDragging = true;
         return;
@@ -179,27 +398,5 @@ export default {
       });
     },
   },
-};
+});
 </script>
-
-<style>
-.flip-list-move {
-  transition: transform 0.5s;
-}
-.no-move {
-  transition: transform 0s;
-}
-.ghost {
-  opacity: 0.5;
-  background: #c8ebfb;
-}
-.list-group {
-  min-height: 20px;
-}
-.list-group-item {
-  cursor: move;
-}
-.list-group-item i {
-  cursor: pointer;
-}
-</style>

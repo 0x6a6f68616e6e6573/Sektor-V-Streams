@@ -435,6 +435,10 @@ export default Vue.extend({
           )
         ).data.data.getAllCharcters;
 
+        for (let i = 0; i < streamers.length; i++) {
+          streamers[i].characters = [];
+        }
+
         for (let index = 0; index < response.length; index++) {
           const character = response[index];
           const pos = streamers.findIndex(
@@ -442,7 +446,7 @@ export default Vue.extend({
               streamer.displayName.toLowerCase() ===
               character.twitchStreamer.toLowerCase()
           );
-          streamers[pos].characters = [];
+
           streamers[pos].characters.push(character);
         }
         this.filterStreamers(streamers, this.$store.state.filter);
