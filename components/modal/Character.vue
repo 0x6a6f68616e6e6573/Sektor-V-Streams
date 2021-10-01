@@ -47,7 +47,8 @@
                       autocomplete="off"
                       class="
                         mt-1
-                        focus:ring-green-500 focus:border-green-500
+                        focus:ring-green-500
+                        focus:border-green-500
                         block
                         w-full
                         shadow-sm
@@ -72,7 +73,8 @@
                       required
                       class="
                         mt-1
-                        focus:ring-green-500 focus:border-green-500
+                        focus:ring-green-500
+                        focus:border-green-500
                         block
                         w-full
                         shadow-sm
@@ -96,7 +98,8 @@
                       autocomplete="off"
                       class="
                         mt-1
-                        focus:ring-green-500 focus:border-green-500
+                        focus:ring-green-500
+                        focus:border-green-500
                         block
                         w-full
                         shadow-sm
@@ -108,7 +111,7 @@
                     />
                   </div>
 
-                  <div class="col-span-6 sm:col-span-3">
+                  <!-- <div class="col-span-6 sm:col-span-3">
                     <label for="country" class="block text-sm font-medium"
                       >Organisattion</label
                     >
@@ -141,9 +144,9 @@
                         {{ organisation.name }}
                       </option>
                     </select>
-                  </div>
+                  </div> -->
 
-                  <div class="col-span-6 sm:col-span-4">
+                  <div class="col-span-6 sm:col-span-3">
                     <label
                       for="twitch_username"
                       class="block text-sm font-medium"
@@ -158,7 +161,8 @@
                       required
                       class="
                         mt-1
-                        focus:ring-green-500 focus:border-green-500
+                        focus:ring-green-500
+                        focus:border-green-500
                         block
                         w-full
                         shadow-sm
@@ -188,15 +192,18 @@
                     font-medium
                     text-gray-700
                     hover:bg-gray-50
-                    focus:outline-none focus:ring focus:ring-gray-500
-                    sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm
+                    focus:outline-none
+                    focus:ring focus:ring-gray-500
+                    sm:mt-0
+                    sm:ml-3
+                    sm:w-auto
+                    sm:text-sm
                   "
                   @click="$emit('closeModal')"
                 >
                   Cancel
                 </button>
                 <button
-                  @click="submit"
                   type="submit"
                   class="
                     inline-flex
@@ -212,9 +219,7 @@
                     bg-green-600
                     hover:bg-green-700
                     focus:outline-none
-                    focus:ring-2
-                    focus:ring-offset-2
-                    focus:ring-green-500
+                    focus:ring-2 focus:ring-offset-2 focus:ring-green-500
                   "
                 >
                   Save
@@ -263,7 +268,7 @@ export default Vue.extend({
   },
   methods: {
     async submit() {
-      if (this.character) {
+      if (this.character != null) {
         this.$axios.post('/api/', {
           query: `mutation updateRoleplayCharacter($_id:ID!,$firstName: String!, $lastName: String!, $alias: String!, $organisation: String!, $twitchStreamer: String! $order: Int!) {
                   updateRoleplayCharacter(input: {_id:$_id, firstName:$firstName, lastName:$lastName, alias:$alias, organisation:$organisation, twitchStreamer:$twitchStreamer, order:$order}) {
@@ -275,13 +280,13 @@ export default Vue.extend({
             firstName: this.form.first_name,
             lastName: this.form.last_name,
             alias: this.form.alias || '',
-            organisation: this.form.organisation,
+            organisation: this.form.organisation || 'Zivilist',
             twitchStreamer: this.form.twitch_username,
             order: this.form.order,
             _id: this.form._id,
           },
         });
-        
+
         this.$emit('closeModal');
         return;
       }
@@ -325,7 +330,7 @@ export default Vue.extend({
           firstName: this.form.first_name,
           lastName: this.form.last_name,
           alias: this.form.alias || '',
-          organisation: this.form.organisation,
+          organisation: this.form.organisation || 'Zivilist',
           twitchStreamer: this.form.twitch_username,
         },
       });
