@@ -35,7 +35,7 @@
       :group="group"
       :character="character"
     />
-    <div class="h-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
+    <div class="h-full grid grid-cols-1 xs:grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
       <div
         v-for="(group, index) in Object.keys(groups)"
         :key="'#' + index"
@@ -219,6 +219,11 @@
                   "
                   >{{ char.twitchStreamer }}</a
                 >
+                <div class="absolute top-1 left-2" v-if="char.online">
+                  <span
+                    class="inline-block w-2 h-2 mr-2 bg-red-600 rounded-full animate-pulse"
+                  ></span>
+                </div>
                 <div class="absolute top-1 -right-1">
                   <button
                     v-if="loggedIn"
@@ -311,6 +316,11 @@ export default Vue.extend({
     if (localStorage.password === 'mousy-ignition-halogen') {
       this.loggedIn = true;
     }
+
+    await this.fetchStreamer();
+    setInterval(async () => {
+      await this.fetchStreamer();
+    }, 0.5 * 60 * 1000);
   },
   methods: {
     onMove({ relatedContext, draggedContext }: any) {
@@ -368,6 +378,52 @@ export default Vue.extend({
           { ...organisations[i], characters: [], sortBy: '' };
       }
       this.organisations = organisations;
+    },
+    async fetchStreamer() {
+      const streamers = await (
+        await this.$axios.get(
+          `/api/?query=` +
+            `
+            query {
+              getAllStreamers {
+                displayName
+                twitch_id
+                description
+                logo
+                stillExists
+                banner
+                preview
+                status
+                game
+                followers
+                createdAt
+                lastUpdated
+                views
+              }
+            }`
+        )
+      ).data.data.getAllStreamers;
+
+      for (const group in this.groups) {
+        for (const key in this.groups[group]) {
+          for (let i = 0; i < this.groups[group][key].characters.length; i++) {
+            const char = this.groups[group][key].characters[i];
+            const stream = streamers.find(
+              (s: any) => s.displayName === char.twitchStreamer
+            );
+            if (!stream) {
+              this.groups[group][key].characters[i].online = false;
+              continue;
+            }
+            if (stream.status != 'offline') {
+              this.groups[group][key].characters[i].online = true;
+            } else {
+              this.groups[group][key].characters[i].online = false;
+            }
+          }
+        }
+      }
+      this.groups.updated = Date.now();
     },
     async fetchData() {
       try {
